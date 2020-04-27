@@ -35,13 +35,19 @@ exports.createPoll = async (req, res, next) => {
     try
     {
         const {id} = req.decoded;
-        const admin = await db.User.findById(id);
+        const admin = await db.Admin.findById(id);
 
-        const { question, options} = req.body;
+        const { title, constituency, date, options} = req.body;
         const poll = await db.Poll.create({
-            question,
+            title,
+            constituency,
+            date,
             admin,
-            options: options.map(option => ({ option, votes: 0}))
+            options: options.map(option => ({ 
+                candidateName: option.candidateName,
+                candidateAddress: option.candidateAddress,
+                candidateParty: option.candidateParty,         
+                votes: 0 }))
         });
         admin.polls.push(poll._id);
         await admin.save();
@@ -101,7 +107,7 @@ exports.vote = async (req, res, next) => {
     try
     {
         const {id: pollId} = req.params;
-        const {id: adminId} = req.decoded;
+        const {id: userId} = req.decoded;
         const {answer} = req.body;
 
         if (answer)
@@ -111,10 +117,12 @@ exports.vote = async (req, res, next) => {
 
             const vote = poll.options.map(
                 option => {
-                    if (option.option === answer)
+                    if (option.id === answer)
                     {
                         return {
-                            option: option.option,
+                            candidateName: option.candidateName,
+                            candidateAddress: option.candidateAddress,
+                            candidateParty: option.candidateParty,
                             _id: option._id,
                             votes: option.votes + 1
                         };
@@ -126,9 +134,9 @@ exports.vote = async (req, res, next) => {
                 }
             );
 
-            if (poll.voted.filter( admin => admin.toString() === adminId).length <= 0)
+            if (poll.voted.filter( user => user.toString() === userId).length <= 0)
             {
-                poll.voted.push(adminId);
+                poll.voted.push(userId);
                 poll.options = vote;
                 await poll.save();
 
