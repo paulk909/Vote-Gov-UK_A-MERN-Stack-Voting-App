@@ -7,13 +7,20 @@ exports.register = async (req, res, next) =>
     try 
     {
         const user = await db.User.create(req.body);
-        const { id, username } = user;
+        const { id, username, forename, surname, email, address1, address2, address3, postcode } = user;
 
         const token = jwt.sign({id, username}, process.env.SECRET);
         
         res.status(201).json({
             id, 
             username, 
+            forename,
+            surname,
+            email,
+            address1,
+            address2,
+            address3,
+            postcode,
             token
         });
     }

@@ -8,7 +8,7 @@ router
 .get(handle.showPolls) // show polls
 .post(auth, handle.createPoll);
 
-router.get('/user', auth, handle.usersPolls);
+router.get('/user', auth, handle.adminsPolls);
 
 router
 .route('/:id')

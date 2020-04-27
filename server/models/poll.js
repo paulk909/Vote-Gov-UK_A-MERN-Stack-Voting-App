@@ -1,7 +1,15 @@
 const mongoose = require('mongoose');
 
 const optionSchema = new mongoose.Schema({
-    option: String,
+    candidateName: {
+        type: String,
+        required: true 
+    },
+    candidateAddress: String,
+    candidateParty: {
+        type: String,
+        required: true 
+    },
     votes: {
         type: Number,
         default: 0
@@ -9,11 +17,13 @@ const optionSchema = new mongoose.Schema({
 });
 
 const pollSchema = new mongoose.Schema({
-    user: {
+    admin: {
         type:mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'Admin'
     },
-    question: String,
+    title: String,
+    constituency: String,
+    date: Date,
     options: [optionSchema],
     voted: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     created: {

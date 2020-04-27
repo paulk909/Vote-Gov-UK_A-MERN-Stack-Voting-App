@@ -3,7 +3,7 @@ const db = require('../models');
 exports.showPolls = async (req, res, next) => {
     try
     {
-        const polls = await db.Poll.find().populate('user', ['username', 'id']);
+        const polls = await db.Poll.find().populate('admin', ['username', 'id']);
 
         res.status(200).json(polls);
     }
@@ -14,15 +14,15 @@ exports.showPolls = async (req, res, next) => {
     }
 };
 
-exports.usersPolls = async (req, res, next) => {
+exports.adminsPolls = async (req, res, next) => {
     try
     {
         const {id} = req.decoded;
 
-        const user = await db.User.findById(id)
+        const admin = await db.Admin.findById(id)
         .populate('polls');
 
-        res.status(200).json(user.polls);
+        res.status(200).json(admin.polls);
     }
     catch (err)
     {
@@ -35,18 +35,18 @@ exports.createPoll = async (req, res, next) => {
     try
     {
         const {id} = req.decoded;
-        const user = await db.User.findById(id);
+        const admin = await db.User.findById(id);
 
         const { question, options} = req.body;
         const poll = await db.Poll.create({
             question,
-            user,
+            admin,
             options: options.map(option => ({ option, votes: 0}))
         });
-        user.polls.push(poll._id);
-        await user.save();
+        admin.polls.push(poll._id);
+        await admin.save();
 
-        res.status(201).json({ ...poll._doc, user: user._id });
+        res.status(201).json({ ...poll._doc, admin: admin._id });
     }
     catch (err)
     {
@@ -61,7 +61,7 @@ exports.getPoll = async (req, res, next) => {
         const {id} = req.params;
 
         const poll = await db.Poll.findById(id)
-        .populate('user', ['username', 'id']);
+        .populate('admin', ['username', 'id']);
 
         if (!poll) throw new Error('No poll found');
 
@@ -78,11 +78,11 @@ exports.deletePoll = async (req, res, next) => {
     try
     {
         const {id: pollId} = req.params;
-        const {id: userId} = req.decoded;
+        const {id: adminId} = req.decoded;
 
         const poll = await db.Poll.findById(pollId);
         if (!poll) throw new Error('No poll found');
-        if (poll.user.toString() !== userId) 
+        if (poll.admin.toString() !== adminId) 
         {
             throw new Error('Unauthorized access');
         }
@@ -101,7 +101,7 @@ exports.vote = async (req, res, next) => {
     try
     {
         const {id: pollId} = req.params;
-        const {id: userId} = req.decoded;
+        const {id: adminId} = req.decoded;
         const {answer} = req.body;
 
         if (answer)
@@ -126,9 +126,9 @@ exports.vote = async (req, res, next) => {
                 }
             );
 
-            if (poll.voted.filter( user => user.toString() === userId).length <= 0)
+            if (poll.voted.filter( admin => admin.toString() === adminId).length <= 0)
             {
-                poll.voted.push(userId);
+                poll.voted.push(adminId);
                 poll.options = vote;
                 await poll.save();
 
