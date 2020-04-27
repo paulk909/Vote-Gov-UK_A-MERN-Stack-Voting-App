@@ -15,9 +15,10 @@ const Poll = ({poll, vote}) => {
     poll.options.map(option => (
         <button 
         className="button" 
-        onClick={() => vote(poll._id, {answer: option.option})} 
+        onClick={() => vote(poll._id, {answer: option._id})} 
         key={option._id}>
-            {option.option}
+            {option.candidateName} <br />
+            {option.candidateParty}
         </button>
     ));
 
@@ -34,9 +35,10 @@ const Poll = ({poll, vote}) => {
     };
 
     return <div>
-        <h3 className="poll-title">{poll.question}</h3>
+        <h3 className="poll-title">{poll.title}</h3>
+        <h2 className="poll-constituency">{poll.constituency}</h2>
         <div className="button-center">{answers}</div>
-        {poll.options && <Pie data={data} />}
+        {/*poll.options && <Pie data={data} />*/}
     </div>;
 };
 

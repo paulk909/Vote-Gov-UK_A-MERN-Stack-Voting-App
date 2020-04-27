@@ -28,11 +28,11 @@ export const getPolls = () => {
     }
 };
 
-export const getUserPolls = () => {
+export const getAdminPolls = () => {
     return async dispatch => {
         try
         {
-            const polls = await api.call('get', 'polls/user');
+            const polls = await api.call('get', 'polls/admin');
             dispatch(setPolls(polls));
             dispatch(removeError());
         }
