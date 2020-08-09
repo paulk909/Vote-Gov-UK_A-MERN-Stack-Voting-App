@@ -1,6 +1,10 @@
+import { BrowserRouter as Router } from "react-router-dom";
+import axios from 'axios';
+
 import {addError, removeError} from './error';
-import {SET_CURRENT_USER} from '../actionTypes';
+import {SET_CURRENT_USER, SET_POLLS, CLEAR_POLLS} from '../actionTypes';
 import api from '../../services/api';
+import { setPolls } from './polls';
 
 export const setCurrentUser = user => ({
     type: SET_CURRENT_USER,
@@ -15,6 +19,7 @@ export const logout = () => {
     return dispatch => {
         localStorage.clear();
         api.setToken(null);
+        dispatch(setPolls([]));
         dispatch(setCurrentUser({}));
         dispatch(removeError());
     };
@@ -31,9 +36,10 @@ export const authUser = (path, data) => {
             dispatch(removeError());
         }
         catch (err)
-        {
-            const error = err.response.data;
-            dispatch(addError(error.message));
+        {          
+            console.log(err);  
+            const { error } = err.message;
+            dispatch(addError(error));
         }
     };
 };

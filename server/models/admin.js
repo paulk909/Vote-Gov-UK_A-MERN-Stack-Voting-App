@@ -58,4 +58,4 @@ adminSchema.methods.comparePassword = async function(attempt, next)
     }
 }
 
-module.exports = mongoose.model('Admin', adminSchema);
+//module.exports = mongoose.model('Admin', adminSchema);

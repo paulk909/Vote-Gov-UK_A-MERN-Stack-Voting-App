@@ -1,5 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
+const csv = require("csvtojson");
 
 mongoose.set('debug', true);
 mongoose.Promise = global.Promise;
@@ -7,14 +8,42 @@ mongoose.connect(process.env.DATABASE);
 
 const db = require('./models');
 
-const admin = [
+/*const admin = [
   { username: 'admin', forename: 'Bob', surname: 'Hoskins', email: 'email@email.com', password: 'password' },
   { username: 'nextadmin', forename: 'Admin', surname: 'McAdmin', email: 'email@email.com', password: 'password' },
-];
+];*/
 
 const user = [
-  { username: 'paul', forename: 'Paul', surname: 'Kerr', email: 'pkerr205@caledonian.ac.uk', password: 'password', address1: "1 Hampden St", address2: "Glasgow", postcode: "G42 9BA" },
-  { username: 'user', forename: 'User', surname: 'McUserface', email: 'pjk009@outlook.com', password: 'password', address1: "1 Mitchell Ave", address2: "Glasgow", postcode: 'G3 7DN' },
+  { 
+    username: 'admin', 
+    userType: 'Admin',
+    forename: 'Admin', 
+    surname: 'McAdmin', 
+    email: 'admin@email.com', 
+    password: 'password', 
+    address1: "1 Hampden St", 
+    address2: "Glasgow", 
+    postcode: "G42 9BA" 
+  },
+  { 
+    username: 'paul', 
+    forename: 'Paul', 
+    surname: 'Kerr', 
+    email: 'pkerr205@caledonian.ac.uk', 
+    password: 'password', 
+    address1: "1 Hampden St", 
+    address2: "Glasgow", 
+    postcode: "G42 9BA" 
+  },
+  { 
+    username: 'user', 
+    forename: 'User', 
+    surname: 'McUser', 
+    email: 'pjk009@outlook.com', 
+    password: 'password', 
+    address1: "1 Mitchell Ave", 
+    address2: "Glasgow", 
+    postcode: 'G3 7DN' },
 ];
 
 const polls = [
@@ -43,6 +72,7 @@ const polls = [
         candidateParty: 'Liberal Democrats'
       }
     ],
+    postcodes:[],
     date: "04/26/2020"
   },
   {
@@ -75,6 +105,7 @@ const polls = [
         candidateParty: 'Scottish Green'
       }
     ],
+    postcodes:[],
     date: "04/26/2020"
   },
   {
@@ -108,6 +139,7 @@ const polls = [
         candidateParty: 'Brexit Party'
       }
     ],
+    postcodes:[],
     date: "04/26/2020"
   },
   {
@@ -146,14 +178,15 @@ const polls = [
         candidateParty: 'Brexit Party'
       }
     ],
+    postcodes:[],
     date: "04/26/2020"
   }
 ];
 
 const seed = async () => {
   try {
-    await db.Admin.remove();
-    console.log('DROP ALL ADMINS');
+   /*await db.Admin.remove();
+    console.log('DROP ALL ADMINS');*/
 
     await db.Poll.remove();
     console.log('DROP ALL POLLS');
@@ -161,13 +194,13 @@ const seed = async () => {
     await db.User.remove();
     console.log('DROP ALL USERS');
 
-    await Promise.all(
+    /*await Promise.all(
       admin.map(async admin => {
         const data = await db.Admin.create(admin);
         await data.save();
       }),
     );
-    console.log('CREATED ADMINS', JSON.stringify(admin));
+    console.log('CREATED ADMINS', JSON.stringify(admin));*/
 
     await Promise.all(
       user.map(async user => {
@@ -175,20 +208,30 @@ const seed = async () => {
         await data.save();
       }),
     );
-    console.log('CREATED USERS', JSON.stringify(admin));
+    console.log('CREATED USERS', JSON.stringify(user));
 
     await Promise.all(
       polls.map(async poll => {
+
         poll.options = poll.options.map(option => ({ 
           candidateName: option.candidateName,
           candidateAddress: option.candidateAddress,
           candidateParty: option.candidateParty,         
           votes: 0 }));
+      
+          await csv()
+          .fromFile("./postcodes/" + poll.constituency + " postcodes.csv")
+          .then (function(jsonArrayObj){ //when parse finished, result will be emitted here.
+            //console.log(jsonArrayObj);            
+            poll.postcodes = jsonArrayObj.map(a => a.Postcode)
+          });
+     
+
         const data = await db.Poll.create(poll);
-        const admin = await db.Admin.findOne({ username: 'admin' });
-        data.admin = admin;
-        admin.polls.push(data._id);
-        await admin.save();
+        const user = await db.User.findOne({ username: 'admin' });
+        data.user = user;
+        user.polls.push(data._id);
+        await user.save();
         await data.save();
       }),
     );

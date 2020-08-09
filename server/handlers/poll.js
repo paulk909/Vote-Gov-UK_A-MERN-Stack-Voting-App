@@ -1,11 +1,22 @@
+const csv = require("csvtojson");
+
 const db = require('../models');
 
 exports.showPolls = async (req, res, next) => {
     try
     {
-        const polls = await db.Poll.find().populate('admin', ['username', 'id']);
+        const {id} = req.decoded;
+        const user = await db.User.findById(id);
+        
+        const polls = await db.Poll.find({"postcodes": user.postcode}).populate('user', ['username', 'id']);
 
-        res.status(200).json(polls);
+        if(polls.length > 0)
+        {
+            res.status(200).json(polls);
+        }
+        else{
+            res.status(200).json([]);
+        }
     }
     catch(err)
     {
@@ -14,15 +25,21 @@ exports.showPolls = async (req, res, next) => {
     }
 };
 
-exports.adminsPolls = async (req, res, next) => {
+exports.usersPolls = async (req, res, next) => {
     try
     {
         const {id} = req.decoded;
 
-        const admin = await db.Admin.findById(id)
+        const user = await db.User.findById(id)
         .populate('polls');
 
-        res.status(200).json(admin.polls);
+        if(user.polls.length > 0)
+        {
+            res.status(200).json(user.polls);
+        }
+        else{
+            res.status(200).json([]);
+        }
     }
     catch (err)
     {
@@ -31,28 +48,36 @@ exports.adminsPolls = async (req, res, next) => {
     }
 };
 
+
 exports.createPoll = async (req, res, next) => {
     try
     {
         const {id} = req.decoded;
-        const admin = await db.Admin.findById(id);
+        const user = await db.User.findById(id);
 
         const { title, constituency, date, options} = req.body;
         const poll = await db.Poll.create({
             title,
             constituency,
             date,
-            admin,
-            options: options.map(option => ({ 
-                candidateName: option.candidateName,
-                candidateAddress: option.candidateAddress,
-                candidateParty: option.candidateParty,         
+            user,
+            options: options.map((options, i) => ({ 
+                candidateName: options[i].candidateName,
+                candidateAddress: options[i].candidateAddress,
+                candidateParty: options[i].candidateParty,         
                 votes: 0 }))
         });
-        admin.polls.push(poll._id);
-        await admin.save();
 
-        res.status(201).json({ ...poll._doc, admin: admin._id });
+        await csv()
+          .fromFile("../postcodes/" + poll.constituency + " postcodes.csv")
+          .then (function(jsonArrayObj){           
+            poll.postcodes = jsonArrayObj.map(a => a.Postcode)
+          });
+
+        user.polls.push(poll._id);
+        await user.save();
+
+        res.status(201).json({ ...poll._doc, user: user._id });
     }
     catch (err)
     {
@@ -67,7 +92,7 @@ exports.getPoll = async (req, res, next) => {
         const {id} = req.params;
 
         const poll = await db.Poll.findById(id)
-        .populate('admin', ['username', 'id']);
+        .populate('user', ['username', 'id']);
 
         if (!poll) throw new Error('No poll found');
 
@@ -84,11 +109,11 @@ exports.deletePoll = async (req, res, next) => {
     try
     {
         const {id: pollId} = req.params;
-        const {id: adminId} = req.decoded;
+        const {id: userId} = req.decoded;
 
         const poll = await db.Poll.findById(pollId);
         if (!poll) throw new Error('No poll found');
-        if (poll.admin.toString() !== adminId) 
+        if (poll.user.toString() !== userId) 
         {
             throw new Error('Unauthorized access');
         }

@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'react-redux';
 
-import {getPolls, getAdminPolls, getCurrentPoll} from '../store/actions';
+import {getPolls, getUserPolls, getCurrentPoll} from '../store/actions';
 
 class Polls extends Component {
     constructor(props) 
@@ -17,13 +17,14 @@ class Polls extends Component {
         getPolls();
     }
 
+
     handleSelect(id) {
         const {history} = this.props;
         history.push(`/poll/${id}`);
     }
     
     render(){
-        const {auth, getPolls, getAdminPolls} = this.props;
+        const {auth, getPolls, getUserPolls} = this.props;
 
         const polls = this.props.polls.map(poll => (<li onClick={() => 
         this.handleSelect(poll._id)} key={poll._id}>
@@ -31,15 +32,25 @@ class Polls extends Component {
         </li>
         ));
 
+            
+        if(auth.isAuthenticated)
         return <Fragment>
-            {auth.isAuthenticated && (
-                <div className="button-center">
-                    <button className="button" onClick={getPolls}>All Polls</button>
-                    <button className="button" onClick={getAdminPolls}>My Polls</button>
+            {auth.user.userType == "Admin" && (
+                <div>
+                    <div className="button-center">
+                        <button className="button" onClick={getPolls}>My Current Ballot</button>
+                        <button className="button" onClick={getUserPolls}>My Created Polls</button>
+                    </div>
+                    <ul className="polls">{polls}</ul>
                 </div>
             )}
-            <ul className="polls">{polls}</ul>
+            {auth.user.userType == "User" && (
+                <ul className="polls">{polls}</ul>
+            )}
+            
         </Fragment>;
+        else
+        return <Fragment><div className="login-warning">Login in to view ballots</div></Fragment>
     }
 };
 
@@ -48,5 +59,5 @@ export default connect(
         auth: store.auth,
         polls: store.polls
     }), 
-    {getPolls, getAdminPolls, getCurrentPoll}
+    {getPolls, getUserPolls, getCurrentPoll}
 )(Polls);

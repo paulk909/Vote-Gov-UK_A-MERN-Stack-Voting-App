@@ -41,7 +41,8 @@ const RouteViews = ({auth, getCurrentPoll}) => (
             exact 
             path='/poll/:id' 
             render={props => (
-            <PollPage getPoll={id => getCurrentPoll(id)} {...props}/>
+            <PollPage getPoll={id => getCurrentPoll(id)} {...props}
+            isAuthenticated = {auth.isAuthenticated}/>
             )} 
         />
         <Route

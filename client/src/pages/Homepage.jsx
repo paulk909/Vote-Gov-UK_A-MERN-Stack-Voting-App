@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 
 import ErrorMessage from '../components/ErrorMessage';
 import Polls from '../components/Polls';
 
 
-const HomePage = props => (
+const HomePage = (props) => (
 <div>
     <ErrorMessage />
     <Polls {...props} />

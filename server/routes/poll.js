@@ -5,10 +5,10 @@ const auth = require('../middlewares/auth');
 
 router
 .route('/')
-.get(handle.showPolls) // show polls
+.get(auth, handle.showPolls) // show polls
 .post(auth, handle.createPoll);
 
-router.get('/admin', auth, handle.adminsPolls);
+router.get('/user', auth, handle.usersPolls);
 
 router
 .route('/:id')

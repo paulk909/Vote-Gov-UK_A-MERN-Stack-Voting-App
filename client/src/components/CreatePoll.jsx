@@ -7,8 +7,14 @@ class CreatePoll extends Component {
 constructor(props) {
     super(props);
     this.state = {
-        question: '',
-        options: ['', '']
+        title: '',
+        constituency: '',
+        date: '',
+        options: [{
+            candidateName: '',
+            candidateAddress: '',
+            candidateParty: ''
+        }]
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -18,7 +24,13 @@ constructor(props) {
 };
 
 addAnswer() {
-    this.setState({options: [...this.state.options, '']});
+    this.setState({options: [...this.state.options, 
+        {
+            candidateName: '',
+            candidateAddress: '',
+            candidateParty: ''
+        }
+    ]});
 };
 
 handleAnswer(e, index) {
@@ -39,30 +51,68 @@ handleChange(e) {
 render() {
     const options = this.state.options.map((options, i) => 
         <Fragment key={i} >
-            <label className="form-label">option</label>
+            <label className="form-label">Candidate</label>
             <input 
                 className="form-input" 
                 type='text' 
-                value={options} 
+                placeholder="Candidate name"
+                autoComplete='off'
+                value={options.candidateName} 
+                onChange={e => this.handleAnswer(e, i)}
+            />
+            <input 
+                className="form-input" 
+                type='text' 
+                placeholder="Candidate address"
+                autoComplete='off'
+                value={options.candidateAddress} 
+                onChange={e => this.handleAnswer(e, i)}
+            />
+            <input 
+                className="form-input" 
+                type='text' 
+                placeholder="Candidate party"
+                autoComplete='off'
+                value={options.candidateParty} 
                 onChange={e => this.handleAnswer(e, i)}
             />
         </Fragment>
         )
     
         return <form className="form" onSubmit={this.handleSubmit}>
-            <label className="form-label" htmlFor="question">Question</label>
+            <label className="form-label" htmlFor="question">Ballot details</label>
             <input
                 className="form-input" 
                 type='text' 
-                name='question' 
-                value={this.state.question} 
+                name='title' 
+                placeholder="Election name"
+                autoComplete='off'
+                value={this.state.title} 
+                onChange={this.handleChange}
+            />
+            <input
+                className="form-input" 
+                type='text' 
+                name='constituency' 
+                placeholder="Constituency"
+                autoComplete='off'
+                value={this.state.constitiuency} 
+                onChange={this.handleChange}
+            />
+            <input
+                className="form-input" 
+                type='text' 
+                name='date' 
+                placeholder="Polling date"
+                autoComplete='off'
+                value={this.state.date} 
                 onChange={this.handleChange}
             />
     
             {options}
     
             <div className="button-center">
-                <button className="button" type='button' onClick={this.addAnswer}>Add Options</button>
+                <button className="button" type='button' onClick={this.addAnswer}>Add Candidate</button>
                 <button className="button" type='submit'>Submit</button>
             </div>
         </form>

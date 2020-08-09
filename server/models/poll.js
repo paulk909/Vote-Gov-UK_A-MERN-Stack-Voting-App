@@ -17,14 +17,15 @@ const optionSchema = new mongoose.Schema({
 });
 
 const pollSchema = new mongoose.Schema({
-    admin: {
+    user: {
         type:mongoose.Schema.Types.ObjectId,
-        ref: 'Admin'
+        ref: 'User'
     },
     title: String,
     constituency: String,
     date: Date,
     options: [optionSchema],
+    postcodes: [String],
     voted: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     created: {
         type: Date,

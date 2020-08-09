@@ -1,5 +1,6 @@
 import {SET_POLLS, SET_CURRENT_POLL} from '../actionTypes';
 
+
 export const polls = (state = [], action) => {
     switch (action.type) 
     {

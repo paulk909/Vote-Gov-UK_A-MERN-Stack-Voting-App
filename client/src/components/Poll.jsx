@@ -1,12 +1,13 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {Pie} from 'react-chartjs-2';
+import {Bar} from 'react-chartjs-2';
 
-import {vote} from '../store/actions';
+import {vote, authUser} from '../store/actions';
 
 const color = () => {
     return ('#' + Math.random().toString(16).slice(2,8));
 }
+
 
 const Poll = ({poll, vote}) => {
 
@@ -23,10 +24,10 @@ const Poll = ({poll, vote}) => {
     ));
 
     const data = poll.options && {
-        labels: poll.options.map(option => option.option),
+        labels: poll.options.map(option => option.candidateName),
         datasets: [
             {
-                label: poll.question,
+                label: poll.constituency,
                 backgroundColor: poll.options.map(option => color()),
                 borderColor: '#323643',
                 data: poll.options.map(option => option.votes)
@@ -37,14 +38,18 @@ const Poll = ({poll, vote}) => {
     return <div>
         <h3 className="poll-title">{poll.title}</h3>
         <h2 className="poll-constituency">{poll.constituency}</h2>
-        <div className="button-center">{answers}</div>
-        {/*poll.options && <Pie data={data} />*/}
+        <div className="candidate-holder">
+            <div className="button-candidate button-center">{answers}</div>      
+          </div>
+        {poll.options && <Bar data={data} />}
     </div>;
+
 };
 
 export default connect(
     store => ({
-        poll: store.currentPoll
+        poll: store.currentPoll,
+        user: authUser.user
     }), 
     {vote}
 )(Poll);

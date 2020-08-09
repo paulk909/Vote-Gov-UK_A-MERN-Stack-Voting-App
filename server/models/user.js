@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+    userType: {
+        type: String,
+        default: "User"
+    },
     username: {
         type: String,
         required: true,
@@ -38,6 +42,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    polls: [{type: mongoose.Schema.Types.ObjectId, ref: 'Poll'}],
     created: {
         type: Date,
         default: Date.now

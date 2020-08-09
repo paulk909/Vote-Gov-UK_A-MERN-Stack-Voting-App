@@ -1,8 +1,2 @@
-@import './styles/base.css';
-@import './styles/reset.css';
-@import './styles/utilities.css';
-@import './styles/error.css';
-@import './styles/navbar.css';
-@import './styles/form.css';
-@import './styles/buttons.css';
-@import './styles/polls.css';
+@import './styles/styles.css';
+/*@import './styles/materialize.css';*/

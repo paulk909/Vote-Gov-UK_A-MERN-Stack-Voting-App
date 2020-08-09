@@ -9,20 +9,22 @@ const NavBar = ({auth, logout}) => (
     <div className="container">
         <ul className="navbar-container">
             <li>
-                <Link className="navbar-brand" to='/' >Home</Link>
+                <Link className="navbar-brand" to='/' >GOV.UK VOTE</Link>
             </li>
             {!auth.isAuthenticated && <Fragment>
                 <li>
-                    <Link className="navbar-item" to='/register'>Register</Link>
+                    {/*<Link className="navbar-item" to='/register'>Register</Link>*/}
                 </li>
                 <li>
                     <Link className="navbar-item" to="/login">Login</Link>
                 </li>
             </Fragment>}
-            {auth.isAuthenticated && <Fragment>
+            {auth.user.userType === "Admin" && <Fragment>
                 <li>
-                    <Link className="navbar-item" to='/poll/new'>Create Poll</Link>
+                    {/*<Link className="navbar-item" to='/poll/new'>Create Poll</Link>*/}
                 </li>
+                </Fragment>}
+            {auth.isAuthenticated && <Fragment>
                 <li>
                     <a className="navbar-item" onClick={logout}>Logout</a>
                 </li>
